@@ -1,0 +1,35 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Next.js
+client/.next/
+client/out/
+client/next-env.d.ts
+
+# Environments
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+server/.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Diagnostic files
+server/analyze-models.js
+server/list-models.js
+server/models.json
+server/models_full.json
+server/test-gemini.js
+server/error.log
+
+# Build outputs
+dist/
+build/
