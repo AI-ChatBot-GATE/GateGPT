@@ -56,38 +56,44 @@ export default function SubjectExplorer() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredSubjects.map((subject) => (
-                        <div
-                            key={subject.name}
-                            className="bg-gray-900/40 border border-gray-800 p-8 rounded-3xl hover:border-gray-700 hover:bg-gray-900/60 transition-all group flex flex-col justify-between"
-                        >
-                            <div>
-                                <div className="w-14 h-14 bg-blue-600/10 text-blue-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                                    {subjectIcons[subject.name] || <BookOpen />}
+                    {filteredSubjects.map((subject) => {
+                        const mastery = useLearningStore.getState().getMastery(subject.name);
+                        return (
+                            <div
+                                key={subject.name}
+                                className="bg-gray-900/40 border border-gray-800 p-8 rounded-3xl hover:border-gray-700 hover:bg-gray-900/60 transition-all group flex flex-col justify-between"
+                            >
+                                <div>
+                                    <div className="w-14 h-14 bg-blue-600/10 text-blue-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                        {subjectIcons[subject.name] || <BookOpen />}
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-3 tracking-tight group-hover:text-blue-400 transition-colors uppercase">{subject.name}</h3>
+                                    <p className="text-sm text-gray-500 line-clamp-2 mb-6 leading-relaxed">
+                                        {subject.description || `Comprehensive guide to ${subject.name} for GATE computer science.`}
+                                    </p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-3 tracking-tight group-hover:text-blue-400 transition-colors uppercase">{subject.name}</h3>
-                                <p className="text-sm text-gray-500 line-clamp-2 mb-6 leading-relaxed">
-                                    {subject.description || `Comprehensive guide to ${subject.name} for GATE computer science.`}
-                                </p>
-                            </div>
 
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between text-xs text-gray-500 uppercase tracking-widest font-bold">
-                                    <span>{subject.topics?.length || 0} Topics</span>
-                                    <span className="text-blue-500">60% Mastered</span>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between text-xs text-gray-500 uppercase tracking-widest font-bold">
+                                        <span>{subject.topics?.length || 0} Topics</span>
+                                        <span className="text-blue-500">{mastery}% Mastered</span>
+                                    </div>
+                                    <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                        <div
+                                            className="bg-blue-600 h-full shadow-[0_0_10px_rgba(37,99,235,0.4)] transition-all duration-1000"
+                                            style={{ width: `${mastery}%` }}
+                                        ></div>
+                                    </div>
+                                    <button
+                                        onClick={() => router.push(`/subjects/${subject.name}`)}
+                                        className="w-full flex items-center justify-center gap-2 py-3 bg-gray-800/50 hover:bg-blue-600 rounded-xl text-sm font-bold transition-all group/btn"
+                                    >
+                                        Explore Notes <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                                    </button>
                                 </div>
-                                <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                                    <div className="bg-blue-600 h-full w-[60%] shadow-[0_0_10px_rgba(37,99,235,0.4)]"></div>
-                                </div>
-                                <button
-                                    onClick={() => router.push(`/subjects/${subject.name}`)}
-                                    className="w-full flex items-center justify-center gap-2 py-3 bg-gray-800/50 hover:bg-blue-600 rounded-xl text-sm font-bold transition-all group/btn"
-                                >
-                                    Explore Notes <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
-                                </button>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import {
     Bookmark, Search, Trash2, Edit3,
     Download, ExternalLink, Calendar, BookOpen,
-    FileText, Tag as TagIcon, MoreVertical, X as XIcon, Share2
+    FileText, Tag as TagIcon, MoreVertical, X as XIcon, Share2, Plus
 } from 'lucide-react';
 import api from '@/lib/axios';
 
@@ -12,21 +12,64 @@ export default function NotesPage() {
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
     const [selectedNote, setSelectedNote] = useState<any>(null);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [newNote, setNewNote] = useState({ title: '', content: '', subject: '' });
+
+    const fetchNotes = async () => {
+        try {
+            setLoading(true);
+            const { data } = await api.get('/notes');
+            setNotes(data);
+        } catch (error) {
+            console.error('Error fetching notes:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchNotes = async () => {
-            // Mock Data - In a real app we'd fetch from API
-            setNotes([
-                { id: 1, title: 'Process Scheduling Summary', content: 'CPU scheduling deals with the problem of switching among processes. The goal is to make the system efficient, fast and fair. Common algorithms include: 1. FCFS (First Come First Served), 2. SJF (Shortest Job First), 3. Priority Scheduling, 4. Round Robin (RR). GATE often asks about Average Waiting Time and Turnaround Time.', category: 'Operating Systems', date: 'Oct 24, 2024' },
-                { id: 2, title: 'Dijkstra Complexity Proof', content: 'Dijkstra algorithm is used for finding the shortest paths between nodes in a graph. For a graph G=(V,E), the complexity is O(E + V log V) when implemented with a Fibonacci heap. With a binary heap, it is O((V+E)log V). Most GATE questions assume binary heap implementation.', category: 'Algorithms', date: 'Oct 25, 2024' },
-                { id: 3, title: 'SQL Joins Cheat Sheet', content: '1. INNER JOIN: Returns records that have matching values in both tables. 2. LEFT JOIN: Returns all records from the left table, and the matched records from the right table. 3. RIGHT JOIN: Returns all records from the right table, and the matched records from the left table. 4. FULL JOIN: Returns all records when there is a match in either left or right table.', category: 'DBMS', date: 'Oct 26, 2024' },
-            ]);
-            setLoading(false);
-        };
         fetchNotes();
     }, []);
 
-    const filteredNotes = notes.filter(n => n.title.toLowerCase().includes(search.toLowerCase()) || n.category.toLowerCase().includes(search.toLowerCase()));
+    const handleCreateNote = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await api.post('/notes', newNote);
+            setNewNote({ title: '', content: '', subject: '' });
+            setIsCreateModalOpen(false);
+            fetchNotes();
+        } catch (error) {
+            console.error('Error creating note:', error);
+        }
+    };
+
+    const handleDeleteNote = async (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (window.confirm('Are you sure you want to delete this note?')) {
+            try {
+                await api.delete(`/notes/${id}`);
+                fetchNotes();
+                if (selectedNote?._id === id) setSelectedNote(null);
+            } catch (error) {
+                console.error('Error deleting note:', error);
+            }
+        }
+    };
+
+    const toggleBookmark = async (note: any, e: React.MouseEvent) => {
+        e.stopPropagation();
+        try {
+            await api.patch(`/notes/${note._id}`, { isBookmarked: !note.isBookmarked });
+            fetchNotes();
+        } catch (error) {
+            console.error('Error toggling bookmark:', error);
+        }
+    };
+
+    const filteredNotes = notes.filter(n =>
+        n.title.toLowerCase().includes(search.toLowerCase()) ||
+        n.subject.toLowerCase().includes(search.toLowerCase())
+    );
 
     return (
         <div className="max-w-6xl mx-auto p-8">
@@ -37,8 +80,11 @@ export default function NotesPage() {
                     </h1>
                     <p className="text-gray-400">Your curated collection of AI insights and personal study notes.</p>
                 </div>
-                <button className="px-6 py-2.5 bg-gray-900 border border-gray-800 hover:bg-gray-800 rounded-xl text-sm font-bold transition-all flex items-center gap-2 uppercase tracking-widest text-white">
-                    <PlusIcon size={16} /> New Note
+                <button
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="px-6 py-2.5 bg-gray-900 border border-gray-800 hover:bg-gray-800 rounded-xl text-sm font-bold transition-all flex items-center gap-2 uppercase tracking-widest text-white"
+                >
+                    <Plus size={16} /> New Note
                 </button>
             </header>
 
@@ -65,12 +111,21 @@ export default function NotesPage() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredNotes.map((note) => (
-                        <div key={note.id} className="bg-gray-900/40 border border-gray-800 p-8 rounded-3xl hover:border-gray-700 transition-all group flex flex-col justify-between h-80 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div
+                            key={note._id}
+                            onClick={() => setSelectedNote(note)}
+                            className="bg-gray-900/40 border border-gray-800 p-8 rounded-3xl hover:border-gray-700 transition-all group flex flex-col justify-between h-80 relative overflow-hidden cursor-pointer"
+                        >
+                            <div className={`absolute top-0 left-0 w-1 h-full bg-orange-500 transition-opacity ${note.isBookmarked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}></div>
                             <div>
                                 <div className="flex items-start justify-between mb-6">
-                                    <span className="px-3 py-1 bg-orange-500/10 text-orange-400 rounded-full text-[10px] font-bold uppercase tracking-widest border border-orange-500/20">{note.category}</span>
-                                    <button className="text-gray-600 hover:text-white transition-colors"><MoreVertical size={16} /></button>
+                                    <span className="px-3 py-1 bg-orange-500/10 text-orange-400 rounded-full text-[10px] font-bold uppercase tracking-widest border border-orange-500/20">{note.subject}</span>
+                                    <button
+                                        onClick={(e) => toggleBookmark(note, e)}
+                                        className={`${note.isBookmarked ? 'text-orange-500' : 'text-gray-600 hover:text-white'} transition-colors`}
+                                    >
+                                        <Bookmark size={18} fill={note.isBookmarked ? "currentColor" : "none"} />
+                                    </button>
                                 </div>
                                 <h3 className="text-xl font-bold mb-3 tracking-tight group-hover:text-orange-400 transition-colors uppercase leading-tight line-clamp-2">{note.title}</h3>
                                 <p className="text-sm text-gray-500 line-clamp-3 leading-relaxed italic">{note.content}</p>
@@ -78,15 +133,19 @@ export default function NotesPage() {
 
                             <div>
                                 <div className="flex items-center gap-2 text-[10px] text-gray-600 font-bold uppercase tracking-widest mb-6">
-                                    <Calendar size={12} /> {note.date}
+                                    <Calendar size={12} /> {new Date(note.createdAt).toLocaleDateString()}
                                 </div>
                                 <div className="flex items-center justify-between pt-6 border-t border-gray-800">
                                     <div className="flex gap-2">
                                         <button className="p-2 bg-gray-800/50 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-all"><Edit3 size={14} /></button>
-                                        <button className="p-2 bg-gray-800/50 hover:bg-red-900/20 rounded-lg text-gray-400 hover:text-red-500 transition-all"><Trash2 size={14} /></button>
+                                        <button
+                                            onClick={(e) => handleDeleteNote(note._id, e)}
+                                            className="p-2 bg-gray-800/50 hover:bg-red-900/20 rounded-lg text-gray-400 hover:text-red-500 transition-all"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
                                     </div>
                                     <button
-                                        onClick={() => setSelectedNote(note)}
                                         className="flex items-center gap-1 text-[10px] font-bold text-orange-500 hover:text-orange-400 uppercase tracking-widest transition-colors"
                                     >
                                         Open Note <ExternalLink size={12} />
@@ -98,7 +157,7 @@ export default function NotesPage() {
                 </div>
             )}
 
-            {/* Modal */}
+            {/* View Note Modal */}
             {selectedNote && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
                     <div className="bg-gray-900 border border-gray-800 max-w-2xl w-full rounded-3xl p-10 relative shadow-2xl overflow-hidden">
@@ -111,7 +170,7 @@ export default function NotesPage() {
                         </button>
 
                         <span className="px-3 py-1 bg-orange-500/10 text-orange-400 rounded-full text-[10px] font-bold uppercase tracking-widest border border-orange-500/20 mb-6 inline-block">
-                            {selectedNote.category}
+                            {selectedNote.subject}
                         </span>
                         <h2 className="text-3xl font-black mb-6 uppercase tracking-tight">{selectedNote.title}</h2>
                         <div className="prose prose-invert max-w-none">
@@ -127,8 +186,65 @@ export default function NotesPage() {
                                     <Share2 size={16} /> Share
                                 </button>
                             </div>
-                            <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Created: {selectedNote.date}</p>
+                            <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Created: {new Date(selectedNote.createdAt).toLocaleDateString()}</p>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Create Note Modal */}
+            {isCreateModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                    <div className="bg-gray-900 border border-gray-800 max-w-md w-full rounded-3xl p-10 relative shadow-2xl">
+                        <h2 className="text-2xl font-bold mb-6 uppercase tracking-tight">Create New Note</h2>
+                        <form onSubmit={handleCreateNote} className="space-y-4">
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Subject</label>
+                                <input
+                                    required
+                                    className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 outline-none"
+                                    value={newNote.subject}
+                                    onChange={e => setNewNote({ ...newNote, subject: e.target.value })}
+                                    placeholder="e.g. Operating Systems"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Title</label>
+                                <input
+                                    required
+                                    className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 outline-none"
+                                    value={newNote.title}
+                                    onChange={e => setNewNote({ ...newNote, title: e.target.value })}
+                                    placeholder="Note title"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Content</label>
+                                <textarea
+                                    required
+                                    rows={4}
+                                    className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-orange-500 outline-none resize-none"
+                                    value={newNote.content}
+                                    onChange={e => setNewNote({ ...newNote, content: e.target.value })}
+                                    placeholder="Your note content..."
+                                />
+                            </div>
+                            <div className="flex gap-4 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsCreateModalOpen(false)}
+                                    className="flex-1 px-6 py-3 border border-gray-800 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-all text-white"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 px-6 py-3 bg-orange-600 hover:bg-orange-500 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-white"
+                                >
+                                    Save Note
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
@@ -144,11 +260,3 @@ export default function NotesPage() {
     );
 }
 
-function PlusIcon({ size }: { size: number }) {
-    return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-    );
-}

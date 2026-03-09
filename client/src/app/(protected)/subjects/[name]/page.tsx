@@ -79,6 +79,14 @@ export default function SubjectDetail() {
                             </div>
                         </div>
                     ))}
+
+                    {/* Personal Notes Section */}
+                    <div className="mt-12 pt-12 border-t border-gray-800">
+                        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 px-1 flex items-center gap-2">
+                            <FileText size={14} className="text-orange-500" /> My {subject.name} Notes
+                        </h3>
+                        <SubjectNotes subjectName={subject.name} />
+                    </div>
                 </div>
 
                 {/* Resources & Shortcuts */}
@@ -112,16 +120,62 @@ export default function SubjectDetail() {
                             <Star size={14} className="text-yellow-500" /> Must-Know Formulas
                         </h3>
                         <div className="space-y-3">
-                            <div className="p-4 bg-gray-950 border border-gray-800 rounded-xl text-xs font-mono text-blue-400">
-                                Wait Time = Turn Around Time - Burst Time
-                            </div>
-                            <div className="p-4 bg-gray-950 border border-gray-800 rounded-xl text-xs font-mono text-emerald-400">
-                                Throughput = No. of tasks / Total time
-                            </div>
+                            {subject.topics?.flatMap((t: any) => t.formulas || []).length > 0 ? (
+                                subject.topics.flatMap((t: any) => t.formulas || []).slice(0, 5).map((formula: string, idx: number) => (
+                                    <div key={idx} className="p-4 bg-gray-950 border border-gray-800 rounded-xl text-xs font-mono text-blue-400 break-words">
+                                        {formula}
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-gray-600 text-xs italic">No formulas listed for this subject yet.</p>
+                            )}
                         </div>
                     </section>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function SubjectNotes({ subjectName }: { subjectName: string }) {
+    const [notes, setNotes] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchNotes = async () => {
+            try {
+                const { data } = await api.get('/notes');
+                // Simple client-side filter for now, in a real app would filter on backend
+                const filtered = data.filter((n: any) =>
+                    n.subject.toLowerCase() === subjectName.toLowerCase() ||
+                    n.subject === 'Chat Insight' // Optionally show chat insights if relevant
+                );
+                setNotes(filtered);
+            } catch (error) {
+                console.error('Failed to fetch related notes:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchNotes();
+    }, [subjectName]);
+
+    if (loading) return <div className="p-4 text-gray-600 text-xs animate-pulse font-bold uppercase tracking-widest">Loading notes...</div>;
+
+    if (notes.length === 0) return (
+        <div className="p-8 border-2 border-dashed border-gray-800 rounded-3xl text-center opacity-40">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">No notes for {subjectName} yet.</p>
+        </div>
+    );
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {notes.map(note => (
+                <div key={note._id} className="p-6 bg-gray-900/60 border border-gray-800 rounded-2xl hover:border-orange-500/20 transition-all cursor-pointer group">
+                    <h5 className="font-bold text-white mb-2 text-sm uppercase tracking-tight line-clamp-1 group-hover:text-orange-400 transition-colors">{note.title}</h5>
+                    <p className="text-xs text-gray-500 line-clamp-2 italic">{note.content}</p>
+                </div>
+            ))}
         </div>
     );
 }

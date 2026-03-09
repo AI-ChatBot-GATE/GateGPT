@@ -11,7 +11,9 @@ const getSubjects = async (req, res) => {
 
 const getSubjectByName = async (req, res) => {
     try {
-        const subject = await Subject.findOne({ name: req.params.name });
+        const subject = await Subject.findOne({
+            name: { $regex: new RegExp(`^${req.params.name}$`, 'i') }
+        });
         if (subject) {
             res.json(subject);
         } else {

@@ -41,6 +41,8 @@ export default function ProtectedLayout({
         <div className="flex h-screen bg-[#050505] text-white overflow-hidden font-sans">
             <Sidebar />
             <main className="flex-1 flex flex-col overflow-y-auto custom-scrollbar relative">
+                {/* Visual indicator for navigation */}
+                <div key={pathname} className="absolute top-0 left-0 right-0 h-[2px] bg-blue-600 animate-progress-fast z-50"></div>
                 {children}
             </main>
         </div>

@@ -59,7 +59,7 @@ export default function ChatWindow({ chatId }: { chatId?: string }) {
                     </div>
                 )}
                 {messages.map((msg: any) => (
-                    <MessageBubble key={msg._id} message={msg} />
+                    <MessageBubble key={msg._id} message={msg} chatId={chatId} />
                 ))}
                 {loading && (
                     <div className="py-8 w-full bg-chatgpt-ai">

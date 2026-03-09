@@ -75,7 +75,7 @@ export default function PracticeMode() {
                 setShowResult(true);
                 saveResult(newAnswers);
             }
-        }, 800);
+        }, 450);
     };
 
     const saveResult = async (finalAnswers: number[]) => {

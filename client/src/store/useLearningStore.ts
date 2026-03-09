@@ -6,21 +6,25 @@ interface Subject {
     name: string;
     description: string;
     topics?: any[];
+    questions?: any[];
 }
 
 interface LearningState {
     subjects: Subject[];
+    stats: any;
     loading: boolean;
     error: boolean;
     lastFetched: number | null;
     fetchSubjects: (force?: boolean) => Promise<void>;
     setSubjects: (subjects: Subject[]) => void;
+    getMastery: (subjectName: string) => number;
 }
 
-const CACHE_DURATION = 1000 * 60 * 5; // 5 minutes
+const CACHE_DURATION = 1000 * 60 * 15; // 15 minutes
 
 export const useLearningStore = create<LearningState>((set, get) => ({
     subjects: [],
+    stats: {},
     loading: false,
     error: false,
     lastFetched: null,
@@ -36,14 +40,19 @@ export const useLearningStore = create<LearningState>((set, get) => ({
 
         set({ loading: subjects.length === 0, error: false });
         try {
-            const { data } = await api.get('/learning/subjects');
+            const [{ data: subjectsData }, { data: analyticsData }] = await Promise.all([
+                api.get('/learning/subjects'),
+                api.get('/learning/analytics')
+            ]);
+
             set({
-                subjects: data,
+                subjects: subjectsData,
+                stats: analyticsData.stats || {},
                 lastFetched: now,
                 loading: false
             });
         } catch (error) {
-            console.error('Failed to fetch subjects:', error);
+            console.error('Failed to fetch subjects or analytics:', error);
             set({ error: true, loading: false });
 
             // Fallback for demo/empty state if no subjects yet
@@ -61,4 +70,11 @@ export const useLearningStore = create<LearningState>((set, get) => ({
     },
 
     setSubjects: (subjects) => set({ subjects }),
+
+    getMastery: (subjectName: string) => {
+        const { stats } = get();
+        const s = stats[subjectName];
+        if (!s || s.totalQuestions === 0) return 0;
+        return Math.round((s.totalScore / s.totalQuestions) * 100);
+    },
 }));

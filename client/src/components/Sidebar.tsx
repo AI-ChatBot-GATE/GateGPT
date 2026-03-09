@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, memo } from 'react';
 import { useChatStore } from '@/store/useChatStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
@@ -10,7 +10,53 @@ import {
 import { useRouter, useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 
-export default function Sidebar() {
+const ChatItem = memo(function ChatItem({ chat, isActive }: { chat: any, isActive: boolean }) {
+    const { deleteChat, pinChat, updateChat } = useChatStore();
+    const [editing, setEditing] = useState(false);
+    const [title, setTitle] = useState(chat.title);
+
+    const handleAction = (e: React.MouseEvent, action: () => void) => {
+        e.preventDefault();
+        e.stopPropagation();
+        action();
+    };
+
+    const handleSave = async (e: any) => {
+        e.preventDefault();
+        await updateChat(chat._id, { title });
+        setEditing(false);
+    };
+
+    return (
+        <Link
+            href={`/chat/${chat._id}`}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer group transition-all text-xs ${isActive ? 'bg-gray-800 text-white shadow-sm' : 'hover:bg-gray-800/30 text-gray-500 hover:text-gray-300'}`}
+        >
+            <MessageSquare size={14} className={isActive ? 'text-blue-500' : ''} />
+            {editing ? (
+                <input
+                    autoFocus
+                    className="flex-1 bg-transparent border-b border-blue-500 outline-none py-0"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    onBlur={handleSave}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSave(e)}
+                />
+            ) : (
+                <span className="flex-1 truncate">{chat.title}</span>
+            )}
+
+            <div className={`hidden gap-0.5 group-hover:flex ${isActive ? 'flex' : ''}`}>
+                <button onClick={(e) => handleAction(e, () => setEditing(true))} className="p-0.5 hover:text-white"><MoreHorizontal size={12} /></button>
+                <button onClick={(e) => handleAction(e, () => pinChat(chat._id))} className={`p-0.5 hover:text-white ${chat.isPinned ? 'text-blue-500' : ''}`}><Pin size={12} /></button>
+                <button onClick={(e) => handleAction(e, () => deleteChat(chat._id))} className="p-0.5 hover:text-red-400"><Trash2 size={12} /></button>
+            </div>
+        </Link>
+    );
+});
+
+const Sidebar = memo(function Sidebar() {
     const { chats, fetchChats, createChat } = useChatStore();
     const { user, logout } = useAuthStore();
     const [search, setSearch] = useState('');
@@ -24,9 +70,13 @@ export default function Sidebar() {
         }
     }, [fetchChats, chats.length]);
 
-    const filteredChats = chats.filter(c => c.title.toLowerCase().includes(search.toLowerCase()));
-    const pinnedChats = filteredChats.filter(c => c.isPinned);
-    const recentChats = filteredChats.filter(c => !c.isPinned);
+    const { pinnedChats, recentChats } = useMemo(() => {
+        const filtered = chats.filter(c => c.title.toLowerCase().includes(search.toLowerCase()));
+        return {
+            pinnedChats: filtered.filter(c => c.isPinned),
+            recentChats: filtered.filter(c => !c.isPinned)
+        };
+    }, [chats, search]);
 
     const handleNewChat = async () => {
         const chat = await createChat();
@@ -127,50 +177,6 @@ export default function Sidebar() {
             </div>
         </aside>
     );
-}
+});
 
-function ChatItem({ chat, isActive }: { chat: any, isActive: boolean }) {
-    const { deleteChat, pinChat, updateChat } = useChatStore();
-    const [editing, setEditing] = useState(false);
-    const [title, setTitle] = useState(chat.title);
-
-    const handleAction = (e: React.MouseEvent, action: () => void) => {
-        e.preventDefault();
-        e.stopPropagation();
-        action();
-    };
-
-    const handleSave = async (e: any) => {
-        e.preventDefault();
-        await updateChat(chat._id, { title });
-        setEditing(false);
-    };
-
-    return (
-        <Link
-            href={`/chat/${chat._id}`}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer group transition-all text-xs ${isActive ? 'bg-gray-800 text-white shadow-sm' : 'hover:bg-gray-800/30 text-gray-500 hover:text-gray-300'}`}
-        >
-            <MessageSquare size={14} className={isActive ? 'text-blue-500' : ''} />
-            {editing ? (
-                <input
-                    autoFocus
-                    className="flex-1 bg-transparent border-b border-blue-500 outline-none py-0"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    onBlur={handleSave}
-                    onClick={(e) => e.stopPropagation()}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSave(e)}
-                />
-            ) : (
-                <span className="flex-1 truncate">{chat.title}</span>
-            )}
-
-            <div className={`hidden gap-0.5 group-hover:flex ${isActive ? 'flex' : ''}`}>
-                <button onClick={(e) => handleAction(e, () => setEditing(true))} className="p-0.5 hover:text-white"><MoreHorizontal size={12} /></button>
-                <button onClick={(e) => handleAction(e, () => pinChat(chat._id))} className={`p-0.5 hover:text-white ${chat.isPinned ? 'text-blue-500' : ''}`}><Pin size={12} /></button>
-                <button onClick={(e) => handleAction(e, () => deleteChat(chat._id))} className="p-0.5 hover:text-red-400"><Trash2 size={12} /></button>
-            </div>
-        </Link>
-    );
-}
+export default Sidebar;

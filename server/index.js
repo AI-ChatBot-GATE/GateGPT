@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const learningRoutes = require('./routes/learningRoutes');
+const noteRoutes = require('./routes/noteRoutes');
 
 dotenv.config();
 connectDB();
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/learning', learningRoutes);
+app.use('/api/notes', noteRoutes);
 
 // Base route
 app.get('/', (req, res) => {
