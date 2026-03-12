@@ -1,6 +1,6 @@
 const Subject = require('../models/Subject');
 
-const getSubjects = async (req, res) => {
+const getSubjects = async (_req, res) => {
     try {
         const subjects = await Subject.find({});
         res.json(subjects);

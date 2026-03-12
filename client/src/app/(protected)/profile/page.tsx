@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { User, Mail, Save, ArrowLeft } from 'lucide-react';
 import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
-    const { user, setUser, token } = useAuthStore();
+    const { user, setUser } = useAuthStore();
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
     const [loading, setLoading] = useState(false);
@@ -21,8 +21,9 @@ export default function ProfilePage() {
             const { data } = await api.put('/auth/profile', { name, email });
             setUser(data);
             setMessage('Profile updated successfully!');
-        } catch (error: any) {
-            setMessage(error.response?.data?.message || 'Update failed');
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            setMessage(err.response?.data?.message || 'Update failed');
         } finally {
             setLoading(false);
         }
