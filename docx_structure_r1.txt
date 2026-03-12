@@ -1,0 +1,325 @@
+--- PARAGRAPHS ---
+P0: Project Title – Canteen Management System
+P1: Product Name Campus Bites
+P2: Git Hub: 
+P3: https://github.com/Gurusaiprasadreddy/Canteen-Management-System-Campus-Bites
+P4: 
+P5: Note: Each student should have one report, one visualization, one testing and one API.
+P6: All forms should be categorized as master and transaction forms.
+P7: All tables should be categorized as master and transaction tables.
+P8: Each student should have one module, one master form and three minimum transaction forms. 
+P9: All forms should have insert, delete, update, search and display features.
+P10: 
+P11: Collaborator Details: ROBERT [GM RESIDENCY]
+P12: ABSTRACT:
+P13: Campus Bites is a full-stack smart canteen management system designed for university environments, built using React.js, FastAPI, and MongoDB with real-time order tracking via Socket.IO.
+P14: The platform serves three roles — Students (browse, order, pay, track), Crew (manage live kitchen queue, validate tokens), and Management (menu, inventory, analytics, administration) — with JWT-based Role-Based Access Control securing all operations.
+P15: Its core innovation lies in a multi-layered AI engine: the Food Recommendation module applies the Apriori algorithm on order history for real-time suggestions; the Wellness AI module uses fuzzy NLP to recommend health-appropriate foods based on a student's current condition; and the Meal Planner uses the 0/1 Knapsack algorithm to optimize meals against protein and budget goals. The system also simulates relational integrity (foreign key constraints, cascade updates, budget triggers) within MongoDB at the application layer.
+P16: With 11 modules, 53 sub-modules, 9 master forms, 12 transaction forms, and 6 visualizations, Campus Bites delivers a comprehensive, production-ready solution integrating operational efficiency, AI personalization, and student wellness.
+P17: Keywords: Canteen Management, FastAPI, React.js, MongoDB, Apriori, Knapsack, WebSockets, Wellness AI, RBAC
+P18: 
+P19: Overall Block Diagram:
+P20: 
+P21: Explanation of Modules in the Block Diagram:
+P22: Guru:
+P23: Module 1 — Management Once authenticated, the Admin and Crew can manage the food catalog through this module. It handles adding, editing, and deleting menu items, tracking inventory levels, setting prices, uploading media, and triggering stock alerts when quantities go low.
+P24: 
+P25: Module 7 — User Management (Entry Point for all users) All three users — Student, Crew, and Admin — enter the system through this module. It handles login, registration, JWT token generation, RBAC role assignment, and session management. It is the gateway that directs each user to their respective modules.
+P26: 
+P27: Module 3 — Crew After a student places an order, it flows into this module. The kitchen crew receives the order through the Live Kitchen Queue, validates the pickup token to prevent duplicates, manages preparation workflow status (Received → Preparing → Ready), and sends alerts for delayed orders.
+P28: Module 11 — Spending Analytics Every time a student makes a payment through the Ordering module, the transaction is recorded here. This module calculates and displays daily, weekly, and monthly spending summaries on the student's personal analytics dashboard.
+P29: 
+P30: Surya:
+P31: Module 5 — Wellness AI After login, students are shown AI-powered meal recommendations based on their health preferences. This module uses an LLM-based engine to suggest healthy meals from the current menu and generates daily health insights.
+P32: Module 4 — Ordering The central transactional module. After browsing the menu (Module 1), students add items to the cart, apply promo codes, and check out via the Payment Gateway. On successful payment, the order is sent to the Crew module and tracked via Module 6.
+P33: Module 10 — Food Recommendation This module analyses the student's past order history using the Apriori algorithm to identify frequently bought-together item combinations. It then provides smart combo suggestions (e.g., Biryani → Coke) in real time.
+P34: 
+P35: Radha:
+P36: Module 2 — Gym Freak Students who have fitness goals use this module to log their daily protein and calorie intake. It maps every menu item to its nutritional profile (Protein, Carbs, Fats) and tracks progress against goals like Bulking, Cutting, or Maintenance.
+P37: Module 6 — Order Tracking Once an order is placed, this module maintains a live WebSocket connection with the backend to push real-time status updates to the student (Pending → Preparing → Ready → Picked Up). It also stores order history for re-ordering.
+P38: Module 8 — Feedback & Ratings After the order is marked as complete, the system triggers a rating prompt. This module collects star ratings and reviews, performs AI sentiment analysis to identify top dishes or trending complaints, and generates Vendor Report Cards.
+P39: Module 9 — Global Admin The Admin user has exclusive access to this module after login. It provides a high-level view of system activity, revenue analytics, canteen onboarding workflows, system rule configuration, and full audit logs of all administrative actions.
+P40: 
+P41: 
+P42: Users in the Product and their Roles:
+P43: 
+P44: Functional Workflow
+P45: 1. Input (The Form Layer)
+P46: Action: Raw data is captured via frontend form components — Add Menu Item (Management), Login/Register (User Management), Cart & Checkout (Ordering), Token Validation (Crew), and Spending Dashboard (Spending Analytics).
+P47: Modules Involved: User Management, Management, Crew, Ordering.
+P48: Logic: This is the entry point where user intent is translated into a raw data object containing item details, user identity, quantities, timestamps, and payment metadata.
+P49: 
+P50: 2. Pre-Processing (The Validation Layer)
+P51: Action: The React.js frontend immediately validates all form inputs — required fields, price format, image file size, email format. The FastAPI backend then sanitizes the payload to prevent injection attacks and normalizes it into a structured JSON format.
+P52: Modules Involved: User Management (schema validation), Management (item data check), Ordering (cart validation).
+P53: Logic: Ensures only clean, properly formatted data proceeds into the processing pipeline.
+P54: 
+P55: 
+P56: 
+P57: 3. Authentication & Role Check (The Access Layer)
+P58: Action: Every API request carries a JWT token. The auth_utils.py module decodes and validates it. The RBAC engine checks the user's role (Student / Crew / Admin) and either grants or blocks access to the requested resource.
+P59: Modules Involved: User Management (Auth Hub, RBAC, Session Guard).
+P60: Logic: A Student cannot edit menu items. A Crew member cannot access the Admin panel. Only verified roles access their designated modules.
+P61: 
+P62: 4. Business Logic & Routing (The Processing Layer)
+P63: Action: The FastAPI backend routes the validated, authenticated request to the correct module handler:
+P64: Order Placed → Written to orders collection → Crew Kitchen Queue updated
+P65: Menu Item Added → Written to menu_items → Immediately visible in Student menu
+P66: Token Validated → Checked against token_logs → Pickup confirmed
+P67: Payment Completed → Written to spending_bills → Analytics updated
+P68: Modules Involved: Management, Crew, Ordering, Spending Analytics.
+P69: Logic: Each business action is processed in its dedicated module, ensuring clean separation of concerns.
+P70: 
+P71: 5. AI & Recommendation Processing (The Intelligence Layer)
+P72: Action: Once an order is recorded, the Wellness AI module analyses the student's dietary preferences and order history to refresh meal recommendations. Simultaneously, the Food Recommendation module runs the Apriori algorithm on the updated order history to generate new combo suggestions (e.g., Biryani → Coke).
+P73: Modules Involved: Wellness AI, Food Recommendation.
+P74: Logic: Every new order enriches the AI model's dataset, making future suggestions more accurate and personalized over time.
+P75: 
+P76: 6. Fitness & Nutrition Sync (The Health Layer)
+P77: Action: After an order is placed, the item's nutritional data (Protein, Carbs, Fats) is pulled from the menu_items collection and logged against the student's fitness profile in the Gym Freak module. The Nutrient Tracker updates the student's daily macro intake.
+P78: Modules Involved: Gym Freak, Management (Nutrition data source).
+P79: Logic: The canteen's food catalog acts as the nutritional data source, linking food choices directly to the student's fitness goal tracking.
+P80: 
+P81: 
+P82: 7. Real-Time Push (The WebSocket Layer)
+P83: Action: The Socket.IO WebSocket server broadcasts live events to connected clients. When a Crew member updates the order status (Preparing / Ready), an instant push notification is fired to the student's Order Tracking screen without requiring a page refresh.
+P84: Modules Involved: Crew (Preparation Workflow, Crew Alert System), Order Tracking (WebSocket Client).
+P85: Logic: Keeps Students and Crew synchronized in real time, eliminating the need for manual polling or page reloads.
+P86: 
+P87: 8. Feedback Capture (The Quality Layer)
+P88: Action: Once the order status reaches "Picked Up", the system automatically triggers the Feedback & Ratings module, prompting the student with a star-rating popup for the meal and canteen. Submitted reviews are stored in the feedback collection and processed by the Sentiment Dashboard.
+P89: Modules Involved: Feedback & Ratings, Order Tracking (completion trigger).
+P90: Logic: Feedback is always contextual and time-bound — it is triggered only after confirmed order completion, ensuring authentic reviews.
+P91: 
+P92: 9. Result & Analytics (The Consumption Layer)
+P93: Action: All processed data surfaces across the relevant dashboards — the student sees updated spending totals in Spending Analytics, the Admin views revenue trends in Global Admin, and the Crew sees a cleared kitchen queue in their Crew Dashboard.
+P94: Modules Involved: Spending Analytics, Global Admin, Crew, Order Tracking, Food Recommendation.
+P95: Logic: Every action in the system produces a measurable outcome that is reflected asynchronously in the analytics layer — ensuring all stakeholders always have up-to-date visibility into system activity.
+P96: 
+P97: 
+List of Products and their features which are referred by us for building our application:
+P98: 
+P99: 
+P100: How is your product different from existing products? 
+P101: 1. Fitness-Aware Food Ordering
+P102: The Difference: Swiggy and Zomato offer food ordering but have zero awareness of a user's health or fitness goals. MyFitnessPal tracks nutrition but has no connection to a real, live food vendor. These two worlds have never been merged in a campus context.
+P103: The Execution: Campus Bites implements a Protein-Goal Integration Engine where every menu item in the canteen catalog carries a macro-nutrient profile (Protein, Carbs, Fats). When a student places an order, the system automatically syncs the meal's nutritional data to their Gym Freak fitness dashboard — making the canteen itself a measurable part of the student's health journey, not just a place to eat.
+P104: 
+P105: 2. Token-Validated Kitchen Handoff System
+P106: The Difference: Swiggy tracks delivery riders, and McDonald's displays a token number on a static screen. Neither system actively validates or prevents a token from being claimed twice — a critical problem in high-traffic university canteens during peak lunch hours.
+P107: The Execution: Campus Bites implements a Token Validation Engine inside the Crew module that verifies every pickup against a token_logs database record. A token can only be marked as "Handed Off" once, and the exact timestamp and crew member involved are permanently logged. This eliminates duplicate pickups, queue confusion, and disputes between students and kitchen staff entirely.
+P108: 
+P109: 3. Real-Time 3-Way Dashboard Synchronization
+P110: The Difference: Existing canteen management tools are either student-facing (Swiggy) or kitchen-facing (POS systems). No platform currently delivers a simultaneous, live-synchronized view across the Student, Kitchen Crew, and System Admin — all three dashboards showing the same system state in real time.
+P111: The Execution: Campus Bites uses a Socket.IO WebSocket backbone to achieve instant, three-way synchronization. When a Crew member updates an order to "Ready", the student's Order Tracking screen updates within milliseconds, and the Admin Revenue Dashboard logs the completed transaction simultaneously — with no page refresh, no polling, and no delay across any of the three dashboards.
+P112: 
+P113: 4. Apriori-Powered Contextual Combo Suggestions
+P114: The Difference: Generic recommendation engines like Swiggy's "People Also Ordered" use popularity-based sorting, not true association mining. This produces generic, unhelpful suggestions that ignore the actual co-purchase patterns of the specific campus community.
+P115: The Execution: Campus Bites implements the Apriori association rule mining algorithm directly on the canteen's own order history database. This means that if 78% of students at this specific campus who order Biryani also order a Coke, that exact insight is surfaced as a real-time suggestion — a data-proven, campus-specific combo recommendation that improves with every new order placed in the system.
+P116: 
+P117: 
+P118: 
+P119: 
+P120: Modules in the Project:      Core Features Breakdown
+P121: Module 1: User Management Identity & Access Control
+P122: Onboarding & Profile Logic: Handles multi-step registration for Students, Crew, and Canteen Vendors, capturing core identity data including name, email, role, and department affiliation.
+P123: Secure Authentication: Implements JWT-based login and session management to enable role-specific dashboard routing and persistent access control across all 11 modules.
+P124: RBAC Permission Engine: Manages the role assignment system (Student / Crew / Admin) through a namespaced permission logic that ensures each user interacts only with the modules and data their role is authorized to access.
+P125: 
+P126: Module 2: Management Canteen Catalog & Inventory Control
+P127: Catalog CRUD Engine: Provides a full-featured interface for vendors to add, edit, and delete menu items across categories (Breakfast, Lunch, Snacks), with each item carrying price, image, and availability status.
+P128: Inventory & Stock Monitoring: Tracks real-time stock levels for each item and interfaces with the Stock Alert System to trigger automated low-stock warnings before items run out during peak hours.
+P129: Pricing & Media Layer: Supports configurable base pricing, combo discount rules, and image upload with auto-optimization — ensuring the student-facing digital storefront is always accurate and visually rich.
+P130: 
+P131: Module 3: Crew Real-Time Kitchen Operations Hub
+P132: Token Validation Engine: Intercepts every order pickup request and validates the student's token against the token_logs database record — allowing each token to be claimed exactly once, preventing duplicate pickups at the counter.
+P133: Live Kitchen Queue: Maintains a real-time WebSocket-driven display of all active incoming orders, auto-sorted by timestamp and urgency, giving kitchen staff a clear, prioritized view of their workload at all times.
+P134: Preparation Workflow & Handoff Logger: Manages the full order lifecycle from Received → In Preparation → Ready → Picked Up, logging the exact timestamp and crew member responsible at each status transition for full operational accountability.
+P135: 
+P136: Module 4: Ordering Transactional Purchase Pipeline
+P137: Cart Orchestrator: Manages session-based temporary storage of selected items with quantities before checkout, enabling students to build, modify, and review their order before committing to payment.
+P138: Multi-Step Checkout Flow: Guides the student through canteen selection, pick-up time confirmation, promo code application, and final total verification before triggering the payment gateway.
+P139: Payment Gateway Integration: Connects to Stripe / Razorpay APIs to process cashless campus transactions, supporting UPI, debit/credit cards, and auto-generating a digital receipt upon successful payment confirmation.
+P140: 
+P141: Module 5: Wellness AI Personalized Health Intelligence Engine
+P142: Dietary Preference Profiling: Captures student-specific dietary restrictions (Veg, Vegan, Keto) and food allergies (Nut-free, Gluten-free) to serve as the foundational input for all AI-driven meal logic.
+P143: LLM-Powered Recommendation Engine: Interfaces with Google GenAI / OpenAI APIs to analyse the student's health goals and today's canteen menu, generating a ranked list of the most nutritionally aligned meal suggestions in real time.
+P144: Health Insight Generator & Meal Planner: Produces daily personalized health tips based on recent ordering history and generates a suggested weekly meal plan from the live canteen rotation, delivered through an AI Chat Interface.
+P145: 
+P146: Module 6: Order Tracking Live Status Visualization Engine
+P147: WebSocket-Based Status Visualizer: Maintains a persistent Socket.IO connection between the student's browser and the FastAPI backend — delivering instant push notifications on every order status change without requiring a page refresh.
+P148: Progress UI & ETA Calculator: Renders a clear progress-bar interface (Pending → Preparing → Ready → Picked Up) and estimates the remaining preparation time based on real-time kitchen load and historical average prep durations.
+P149: Order History Vault & Kitchen Messenger: Stores a complete, searchable archive of all past orders for quick re-ordering, while also supporting one-way alerts from the kitchen to the student (e.g., "Your item is temporarily out of stock").
+P150: 
+P151: Module 7: Gym Freak Fitness & Nutrition Tracking Engine
+P152: Fitness Profile Manager: Captures student body metrics including current weight, target weight, activity level, and BMI to establish a personalized baseline for all nutrition tracking calculations.
+P153: Macro-Nutrient Sync Engine: Automatically maps every canteen menu item ordered to its nutritional profile (Protein, Carbs, Fats) and logs the intake against the student's configured daily macro targets in real time.
+P154: Progress Analytics Dashboard: Renders a visual weekly dashboard showing goal attainment versus actual intake trends, enabling students to make informed food choices directly from the canteen menu to meet Bulking, Cutting, or Maintenance targets.
+P155: 
+P156: Module 8: Feedback & Ratings Quality Insights & Reputation Engine
+P157: Contextual Rating Collector: Automatically triggers a star-rating and review prompt after every confirmed order completion — ensuring all feedback is authentic, time-bound, and directly tied to a real transaction.
+P158: Sentiment Analysis Dashboard: Processes submitted reviews through an AI-driven sentiment engine to surface aggregated insights such as "Trending Complaints" and "Top Rated Dishes," giving admins and vendors actionable quality intelligence.
+P159: Vendor Report Card & Leaderboard: Generates periodic canteen performance summaries based on aggregated user ratings and publishes a public leaderboard of top-rated items on the student dashboard to guide informed meal choices.
+P160: 
+P161: Module 9: Global Admin Platform Governance & Oversight Console
+P162: Canteen Onboarding Portal: Manages the end-to-end workflow for approving new vendor registrations, assigning digital stall profiles, and configuring their initial menu and operating hours within the platform.
+P163: Revenue Analytics Dashboard: Aggregates platform-wide transaction data into high-level visual charts covering total daily/monthly sales, per-canteen revenue breakdowns, and refund tracking for system-wide financial oversight.
+P164: System Rule Engine & Audit Logs: Provides a centralized interface for configuring platform-wide operational variables (service fees, operating hours) and maintains a tamper-proof, read-only audit log of every administrative action taken across the system.
+P165: 
+P166: Module 10: Food Recommendation Apriori-Based Association Mining Engine
+P167: Order History Collector & Preprocessing Engine: Continuously aggregates all canteen transaction records into a structured dataset and applies data cleaning and formatting pipelines to prepare it for association rule mining.
+P168: Apriori Mining Engine: Executes the Apriori frequent itemset algorithm on the canteen's actual order history to discover statistically significant item co-purchase patterns (e.g., 78% of students who order Biryani also order Coke).
+P169: Real-Time Suggestion & Ranking System: Surfaces the mined association rules as live combo suggestions during the student's cart selection phase, ranked by confidence score — producing campus-specific, data-proven recommendations that improve with every new order.
+P170: 
+P171: Module 11: Spending Analytics Student Budget Intelligence Dashboard
+P172: Multi-Period Budget Calculator: Aggregates all payment records from the spending_bills collection to compute accurate Daily, Weekly, and Monthly food expenditure totals, displayed as animated summary cards on the student dashboard.
+P173: Bills Ledger & Expense Breakdown: Renders the student's last 10 individual transaction records with per-bill item counts, timestamps, and exact amounts — functioning as a lightweight personal food expense statement.
+P174: Parallel Data Fetcher: Uses Promise.all to simultaneously retrieve both spending analytics totals and bill detail records in a single load event, minimizing latency and ensuring the dashboard always reflects the most current financial state.
+P175: 
+P176: 
+P177: 
+P178: Forms In the Application:
+P179: MASTER FORM – REFERENCE/STATIC DATA
+P180: 
+P181: 
+P182: 
+P183: 
+P184: 
+P185: 
+P186: 
+P187: TRANSACTION FORM – OPERATIONAL/ACTIVE DATA
+P188: 
+P189: 
+P190: Reports
+P191: 1) Student Spending Analytics Report
+P192: Description: Displays the personal food expenditure summary for each student across configurable time periods.
+P193: Key Insights:
+P194: Daily total spending amount (₹)
+P195: Weekly cumulative food expenditure
+P196: Monthly budget consumption vs. estimated limits
+P197: Recent bills ledger showing last 10 transactions with item count and amount
+P198: Most expensive single order of the period
+P199: 
+P200: 2) Kitchen Workflow & Operations Report
+P201: Description: Monitors the kitchen crew's order processing performance and operational efficiency.
+P202: Key Insights:
+P203: Total orders received vs. completed per day
+P204: Average order preparation time (Received → Ready)
+P205: Token validation success rate and duplicate attempt count
+P206: Peak hour order volume distribution (Breakfast / Lunch / Snacks)
+P207: Handoff log — crew member performance and delivery timestamps
+P208: 
+P209: 3) Menu & Inventory Status Report
+P210: Description: Tracks the health of the canteen's food catalog and stock levels.
+P211: Key Insights:
+P212: Current stock levels per item with Red/Yellow/Green health indicators
+P213: Most ordered items of the day/week
+P214: Items that triggered low-stock alerts and restock frequency
+P215: Category-wise sales breakdown (Breakfast / Lunch / Snacks)
+P216: Items marked out-of-stock and duration of unavailability
+P217: 
+P218: 4) AI Recommendation Performance Report
+P219: Description: Measures the effectiveness and engagement of the AI-powered meal suggestion engine.
+P220: Key Insights:
+P221: Recommendation acceptance rate (students who ordered suggested items)
+P222: Most recommended items vs. most accepted recommendations
+P223: Apriori combo suggestion click-through rate (e.g., Biryani → Coke conversion %)
+P224: Health goal alignment score — how closely student orders match their set fitness goals
+P225: Daily health insight delivery count and read rate
+P226: 
+P227: 5) Order Tracking & Fulfilment Report
+P228: Description: Provides end-to-end visibility into the order journey from placement to pickup.
+P229: Key Insights:
+P230: Order status breakdown: Pending / Preparing / Ready / Picked Up / Cancelled counts
+P231: Average time per order stage (Received → Preparing → Ready → Picked Up)
+P232: WebSocket push notification delivery success rate
+P233: Orders with kitchen messenger alerts (e.g., item out of stock warnings)
+P234: Student re-order rate from Order History Vault
+P235: 
+P236: 6) Admin Revenue & Platform Health Report
+P237: Description: High-level dashboard for system administrators to monitor platform-wide activity and financial performance.
+P238: Key Insights:
+P239: Total platform revenue (daily / monthly) across all canteens
+P240: Per-canteen revenue breakdown with top performer rankings
+P241: New user registrations this period (Students / Crew / Vendors)
+P242: Active vs. suspended canteen count
+P243: Audit log action summary — total admin actions taken and category breakdown
+P244: 
+P245: 
+P246: Technical Stack Implementation
+P247: Frontend (React.js)
+P248: Student Dashboard with canteen grid and menu browsing
+P249: Real-time Order Tracking UI with WebSocket client (Socket.IO)
+P250: Spending Analytics dashboard with animated daily/weekly/monthly cards
+P251: AI Recommendations page with health goal inputs and meal suggestions
+P252: Responsive design with TailwindCSS + Framer Motion animations
+P253: Backend (FastAPI + Python)
+P254: User authentication with JWT token generation
+P255: RBAC enforcement for Student / Crew / Admin roles
+P256: CRUD operations for menu items, orders, tokens, and spending records
+P257: WebSocket server (Socket.IO) for real-time kitchen ↔ student synchronization
+P258: Apriori algorithm integration for food recommendation engine
+P259: Google GenAI / OpenAI API integration for Wellness AI recommendations
+P260: Database (MongoDB)
+P261: Collections: users, menu_items, orders, token_logs, spending_bills, feedback
+P262: Motor async driver for non-blocking, high-speed database operations
+P263: Pydantic schema validation for all models
+P264: Payment Integration
+P265: Stripe / Razorpay API for cashless campus food transactions
+P266: UPI, Debit/Credit Card, and Campus Wallet support
+P267: Auto-generated digital receipt after successful payment
+P268: Real-Time Infrastructure
+P269: Socket.IO WebSocket for 3-way live sync: Student ↔ Kitchen Crew ↔ Admin
+P270: Instant push notifications on every order status change without page refresh
+P271: AI & Intelligence Layer
+P272: Google GenAI / OpenAI API for Wellness AI meal recommendations and health insights
+P273: Apriori association rule mining on canteen order history for combo suggestions
+
+--- TABLES ---
+Table 0:
+  Row 0: Roll No | Name | Module Info | Role (Modules/Form/Database/Table/Visualization/Report/Testing/API) | Product referred for comparison
+  Row 1: CB.SC.U4CSE23111 | B.Guru Sai Prasad Reddy | Modules (4): Management, Crew, User Management, Spending Analytics • Submodules (16): Catalog Manager, Inventory Tracker, Pricing Engine, Media Handler, Stock Alert System, Token Validation Engine, Live Kitchen Queue, Preparation Workflow, Crew Alert System, Handoff Logger, Auth Hub, RBAC, Unified Profile Manager, Session Guard, Onboarding Workflow, Daily/Weekly/Monthly Spending Calculation | Master Forms (3):  ① Canteen Registration Form  ② Menu Catalog Form  ③ User Profile Form — all with Insert, Delete, Update, Search, Display  • Transaction Forms (4):  ① Stock Update Form ② Pricing Update Form  ③ Crew Assignment Form  ④ Session Management Form — all with Insert, Delete, Update, Search, Display  • Master Tables: Users Table, Canteens Table • Transaction Tables: Sessions Table, Spending Records Table  • Report: Monthly Spending & Revenue Summary Report  • Visualization: Daily/Weekly/Monthly Spending Analytics Chart  • Testing: Backend API Testing — Auth, Crew, Management Routes ( test_api.py)  • API: Auth, Management Analytics, Spending, Crew Operations REST API | Swiggy for Business / Toast POS
+  Row 2: CB.SC.U4CSE23127 | N.Surya Tejeswar | Modules (3): Ordering, Wellness AI, Food Recommendation • Submodules (15): Cart Orchestrator, Payment Gateway, Checkout Flow, Promo/Coupon System, Receipt Generator, Preference Profile, AI Recommendation Engine, Meal Planner, Health Insight Generator, AI Chat Interface, Order History Collector, Data Preprocessing Engine, Apriori Mining Engine, Real-Time Suggestion Engine, Recommendation Ranking System | Master Forms (3):  ① Menu Item Master Form  ② Protein/Nutrition Goal Form  ③ Food Preference Profile Form — all with Insert, Delete, Update, Search, Display  • Transaction Forms (4):  ① Order Form (Cart Orchestrator)  ② Payment & Checkout Form  ③ Promo/Coupon Form ④ Receipt Generator Form — all with Insert, Delete, Update, Search, Display  • Master Tables: Menu Items Table (assignment_menu_items), Nutrition Goals Table (assignment_protein_goals)  • Transaction Tables: Orders Table (assignment_orders), Payments/Receipts Table • Report: Order History & Recommendation Summary Report  • Visualization: Food Recommendation Rankings & Wellness Meal Planner Dashboard  • Testing: Ordering Flow Testing — FK constraint violations, cascade update, budget deduction trigger • API: Ordering, Promo, Food Recommendation, Wellness AI REST API (/api/assignment/*) | Swiggy (Ordering) + MyFitnessPal (Wellness AI)
+  Row 3: CB.SC.U4CSE23134 | P.M Radha Krishna | Modules (4): Gym Freak, Order Tracking, Feedback & Ratings, Global Admin • Submodules (22): Fitness Profile Manager, Nutrient Tracker, Nutrition Labeler, Macro-Goal Setting, Progress Analytics, Status Visualizer, WebSocket Client, ETA Calculator, Kitchen Messenger, Order History Vault, Rating Collector, Review Moderation, Sentiment Dashboard, Vendor Report Card, Public Leaderboard, Canteen Onboarding Portal, Revenue Analytics Dashboard, System Rule Engine, Announcement Center, Audit Logs | Master Forms (3):  ① Fitness Profile Form  ② Macro-Goal Settings Form  ③ Canteen Onboarding Form — all with Insert, Delete, Update, Search, Display  • Transaction Forms:  ① Rating & Review Submission Form  ② Order Tracking Status Form  ③ Nutrient Tracker Form  ④ Announcement Form — all with Insert, Delete, Update, Search, Display  • Master Tables: Fitness Profiles Table, Nutrition Labels Table  • Transaction Tables: Order Tracking Table, Ratings & Reviews Table, Audit Logs Table  • Report: Vendor Report Card & Feedback Sentiment Analysis Report  • Visualization: Real-time Order Status Tracker + Fitness Progress Analytics Chart  • Testing: WebSocket Order Tracking Test, Ratings Submission & Admin Dashboard Validation  • API: Order Tracking, Feedback & Ratings, Gym Freak, Global Admin REST API | Zomato (Tracking + Ratings) + Fitbit (Gym Freak)
+Table 1:
+  Row 0: User | Role
+  Row 1: Student | Browsing canteen menus, placing food orders, tracking live order status via Order Tracking, viewing AI-powered meal recommendations from Wellness AI, and monitoring personal spending summaries in the Spending Analytics dashboard.
+  Row 2: Crew / Kitchen Staff | Managing the live kitchen order queue, validating student pickup tokens to prevent duplicate claims, updating order preparation status in real time (Received → Preparing → Ready → Picked Up), and triggering crew alerts for high-priority orders.
+  Row 3: Canteen Vendor | Managing the digital food catalog through the Management module — adding, editing, and removing menu items across categories (Breakfast, Lunch, Snacks), setting prices, uploading item images, and monitoring stock inventory levels.
+  Row 4: System Admin | Overseeing the full platform via the Global Admin module — approving new canteen registrations, managing all user accounts and roles, configuring system-wide rules, and reviewing revenue analytics and audit logs.
+Table 2:
+  Row 0: # | Product / Platform | Features Referred | How It Influenced Our Application
+  Row 1: 1 | Swiggy | Live order tracking, real-time status updates (Preparing → Out for Delivery), restaurant menu management, cart & checkout flow | Inspired the Order Tracking module (live status: Pending → Preparing → Ready → Picked Up) and the Ordering module's cart and checkout flow
+  Row 2: 2 | Zomato | Menu catalog with categories, item images, ratings & reviews, restaurant-level analytics | Inspired the Management module's Catalog Manager with categories (Breakfast/Lunch/Snacks), Media Handler for item images, and the Feedback & Ratings module
+  Row 3: 3 | MyFitnessPal | Daily calorie and protein tracking, macro breakdown (Protein/Carbs/Fats), goal setting (Bulking/Cutting), progress charts | Inspired the Gym Freak module's Nutrient Tracker, Macro-Goal Setting, and Progress Analytics submodules
+  Row 4: 4 | ChatGPT / Google Gemini | Conversational AI interface, personalized recommendations, context-aware responses | Inspired the Wellness AI module's AI Recommendation Engine, Health Insight Generator, and AI Chat Interface using Google GenAI / OpenAI APIs
+  Row 5: 5 | Amazon (Customers Also Bought) | Apriori-based product association, frequently bought together suggestions, real-time combo recommendations | Directly inspired the Food Recommendation module's Apriori Mining Engine for combo suggestions (e.g., Biryani → Coke)
+  Row 6: 6 | Splitwise / CRED | Daily/Weekly/Monthly transaction summaries, spending patterns, budget visualization | Inspired the Spending Analytics module's Daily, Weekly, and Monthly budget calculation and visual dashboard
+  Row 7: 7 | Firebase / Socket.IO | Real-time WebSocket push notifications, live data sync without page refresh | Used directly in Crew module and Order Tracking module to push live kitchen updates to students instantly
+  Row 8: 8 | JWT.io / OAuth 2.0 | Secure token-based authentication, role-based access control, session expiry management | Inspired the User Management module's Auth Hub, RBAC, and Session Guard implementation using FastAPI JWT
+  Row 9: 9 | Google Admin Console | System-wide user management, role assignments, audit logs, platform configuration | Inspired the Global Admin module's Canteen Onboarding Portal, Revenue Analytics Dashboard, and Audit Logs
+Table 3:
+  Row 0: # | Form Name | Owner | Module
+  Row 1: 1 | Canteen Registration Form | Guru | Management
+  Row 2: 2 | Menu Catalog Form | Guru | Management
+  Row 3: 3 | User Profile Form | Guru | User Management
+  Row 4: 4 | Menu Item Master Form | Surya | Ordering
+  Row 5: 5 | Protein / Nutrition Goal Form | Surya | Wellness AI
+  Row 6: 6 | Food Preference Profile Form | Surya | Food Recommendation
+  Row 7: 7 | Fitness Profile Form | Radha | Gym Freak
+  Row 8: 8 | Macro-Goal Settings Form | Radha | Gym Freak
+  Row 9: 9 | Canteen Onboarding Form | Radha | Global Admin
+Table 4:
+  Row 0: # | Form Name | Owner | Module
+  Row 1: 1 | Stock Update Form | Guru | Inventory Tracker
+  Row 2: 2 | Pricing Update Form | Guru | Pricing Engine
+  Row 3: 3 | Crew Assignment Form | Guru | Crew
+  Row 4: 4 | Session Management Form | Guru | Session Guard
+  Row 5: 5 | Order Form | Surya | Cart Orchestrator
+  Row 6: 6 | Payment & Checkout Form | Surya | Payment Gateway
+  Row 7: 7 | Promo / Coupon Form | Surya | Promo System
+  Row 8: 8 | Receipt Generator Form | Surya | Receipt Generator
+  Row 9: 9 | Rating & Review Form | Radha | Feedback & Ratings
+  Row 10: 10 | Order Tracking Status Form | Radha | Order Tracking
+  Row 11: 11 | Nutrient Tracker Form | Radha | Gym Freak
+  Row 12: 12 | Announcement Form | Radha | Global Admin

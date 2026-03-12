@@ -38,10 +38,13 @@ export default function LandingPage() {
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600/10 border border-blue-500/20 rounded-full text-blue-400 text-xs font-bold uppercase tracking-widest mb-10 animate-bounce">
                         <Zap size={14} fill="currentColor" /> The Next-Gen GATE Platform
                     </div>
-                    <h1 className="text-6xl md:text-8xl font-black mb-8 leading-[1.05] tracking-tight">
+                    <h1 className="text-6xl md:text-8xl font-black mb-4 leading-[1.05] tracking-tight">
                         Master the GATE Exam <br />
                         with <span className="bg-gradient-to-r from-blue-500 to-emerald-500 text-transparent bg-clip-text">AI Precision.</span>
                     </h1>
+                    <p className="text-xl md:text-2xl font-bold text-blue-400 mb-8 tracking-[0.2em] uppercase">
+                        Unlocking Potential, One Concept at a Time.
+                    </p>
                     <p className="text-xl text-gray-500 mb-12 max-w-2xl mx-auto leading-relaxed font-medium capitalize">
                         More than just a chatbot. A complete AI learning ecosystem for computer science aspirants. Solve PYQs, practice quizzes, and simulate interviews.
                     </p>

@@ -1,0 +1,47 @@
+--- PARAGRAPHS ---
+P0: Review 3
+P1: =========================================================
+P2: Group No			: 17
+P3: Title				 : Canteen Management System
+P4: Product Name		 : Campus Bites
+P5: Full Stack Product referred for study :Ex : MIT CAMPUS DINING
+P6: LINK: https://studentlife.mit.edu/dining/
+P7: ----------------------------------------------------------------------------------------------
+P8: Roll No 			:CB.SC.U4CSE23111
+P9: Name 			:B. GURU SAI PRASAD REDDY
+P10: Collaborator Name	:   Robert [GM Residency]
+P11: 
+P12: 
+P13: 
+P14: 
+P15: 
+P16: 
+P17: 
+P18: 
+P19: 
+P20: 
+P21: Make a table with this columns:
+P22: 
+
+--- TABLES ---
+Table 0:
+  Row 0: S.No | Project Metric | In Project | Contributed by the student
+  Row 1: 1 | Number of Modules | 11 | 4 (Management, Crew, User Management, Spending Analytics )
+  Row 2: 2 | Number of submodules | 53 Submodules | 18 (Catalog Manager,  Inventory Tracker,  Pricing Engine,  Media Handler,  Stock Alert System,  Token Validation Engine,  Live Kitchen Queue,  Preparation Workflow,  Crew Alert System,  Handoff Logger,  Auth Hub,  RBAC (Role-Based Access Control),  Unified Profile Manager,  Session Guard,  Onboarding Workflow,  Budget calculations (Weekly, Daily, Monthly) )
+  Row 3: 3 | Number of master forms | 9 Forms | 3 (Add Menu Item  Add Canteen Details  Unified Registration / Profile)
+  Row 4: 4 | Number of transaction forms | 12 Forms | 4  (Token Validation  Order Status Workflow (Kitchen))
+  Row 5: 5 | Number of reports | 6 Reports | 2  (Spending Analytics (Daily/Weekly/Monthly)  Kitchen Workflow Logs)
+  Row 6: 6 | Number of Visualisations | 6 | 2  (Live Kitchen Queue  Budget Analytics Dashboard)
+  Row 7: 7 | Number of Master Tables | 6 | 2 (Users,   Menu Items)
+  Row 8: 8 | Number of Transaction tables | 7 | 2  (Token Logs   Order Status Logs)
+  Row 9: 9 | What is Novelty ? | AI-powered food recommendations with protein-goal integration, QR-based token validation, real-time kitchen workflow automation, intelligent stock alerts, Apriori-based combo suggestions, secure RBAC authentication, live 3-sided dashboard synchronization, WebSocket order tracking, and budget-based spending analytics. | Designed and implemented a real-time live kitchen workflow system with token validation, an intelligent stock alert mechanism, and structured role-based authentication with a budget-based spending analytics dashboard.
+Table 1:
+  Row 0: Concept | Contribution | Marks Allotted | Marks Awarded | Additional Info regarding the contribution | 
+  Row 1: NodeJS | Built React.js frontend for Menu Management, Crew Kitchen Dashboard, User Auth forms, and Spending Analytics. | 10 |  | Developed fully interactive UI screens using React.js with state management, animated transitions using Framer Motion, and responsive layouts using TailwindCSS. Each module page fetches live data from the backend and renders it dynamically to the user. | 
+  Row 2: Express JS | Developed FastAPI backend REST API routes for all 4 assigned modules. | 10 |  | Designed and implemented RESTful API endpoints for Menu CRUD operations, Crew Order and Token status management, User Login and Registration with JWT, and Spending Analytics data retrieval. All routes are protected with role-based middleware to ensure only authorized users can access specific operations. | 
+  Row 3: MongoDB | Designed database schemas and collections for all 4 modules. | 5 |  | Created and used MongoDB collections including Users, Menu Items, Orders, Token Logs, and Spending Bills. Each collection has well-structured Pydantic models defining field types, validation rules, and optional/required constraints, ensuring clean and consistent data storage. | 
+  Row 4: Integration | Connected React frontend to FastAPI backend using Axios and Socket.IO WebSockets. | 5 |  | Integrated the frontend and backend seamlessly using Axios HTTP client with JWT Bearer token headers for secure API calls. Additionally, Socket.IO WebSocket connections were set up to enable real-time live kitchen queue updates and instant crew alert notifications without needing page refresh. | 
+  Row 5: Innovation | Implemented four novel features: Token Validation, Stock Alerts, RBAC Auth, and Budget Analytics. | 5 |  | Introduced a token-based verification system to prevent duplicate order pickups in the kitchen, an intelligent stock alert mechanism that warns vendors when item quantity goes low, a structured 3-role RBAC authentication system separating Student, Crew, and Admin permissions, and a real-time budget analytics dashboard that tracks student spending on a daily, weekly, and monthly basis. | 
+  Row 6: Testing | Tested all API endpoints and UI flows for the 4 assigned modules. | 5 |  | Performed thorough testing of all module endpoints including menu item insertion and retrieval, crew order status transitions, user login and role-based access enforcement, and spending analytics data accuracy. Tests were executed using the FastAPI Pytest suite and verified through browser-based manual testing of the React UI. | 
+  Row 7: Report | Documented all module contributions, submodules, forms, tables, and novelty statements. | 10 |  | Prepared a comprehensive report covering 4 modules and 16 submodules. The report includes a detailed description of each submodule's functionality, the forms and tables implemented (3 Master Forms, 2 Transaction Forms, 2 Reports, 2 Visualisations, 2 Master Tables, 2 Transaction Tables), and a clearly written individual novelty statement highlighting unique technical contributions made to the project. | 
+  Row 8: Total |  | 50 |  |  | 
