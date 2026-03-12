@@ -33,3 +33,9 @@ server/error.log
 # Build outputs
 dist/
 build/
+
+# Documents and Scripts
+*.docx
+*.ppt
+*.pptx
+*.py
